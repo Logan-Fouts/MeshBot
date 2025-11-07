@@ -6,6 +6,9 @@ import time
 
 def respond(response, port, channel_index=0, chunk_size=200):
     print(f"Responding with message: {response}")
+
+    disclaimer = "\n\n## Disclaimer\n*Please exercise extreme caution when utilizing this device, as it is not perfect and relies on a limited offline communication system - think twice before relying solely on this last-ditch option, and always prioritize other means of safety.*"
+    response += disclaimer
     if len(response) <= chunk_size:
         result = subprocess.run(["meshtastic", "--port", port, "--ch-index", str(channel_index), "--sendtext", response], 
                                capture_output=True, text=True)
@@ -19,11 +22,15 @@ def respond(response, port, channel_index=0, chunk_size=200):
         response = response[chunk_size:]
         result = subprocess.run(["meshtastic", "--port", port, "--ch-index", str(channel_index), "--sendtext", chunk], 
                                capture_output=True, text=True)
+        print("Sending:", chunk)
+        time.sleep(1)
 
 def prompt_ai(question, ai_model="llama3.2"):
     url = "http://localhost:11434/api/generate"
     prompt = f"""
-    You are TrailGuard AI, an offline emergency guide for remote areas using a lora mesh to communicate.
+    You are MeshRanger AI, an offline emergency guide for remote areas using a lora mesh to communicate over long distances using low power radio.
+    The goal is for national parks and others to purchase these devices that they can deploy in high locations in remote areas to provide a saftey net of information to hikers and such.
+    The whole device will be a heltec v3 meshtastic device connected to a raspberry pi 5 most likely which will run a ollama model prompt engineered to be a kind of guide.
 
     Rules:
 
@@ -31,13 +38,15 @@ def prompt_ai(question, ai_model="llama3.2"):
 
         Focus on actionable survival info: first aid, navigation, shelter, water, and hazard identification.
 
+        You cannot contact any emergency services.
+
         Prioritize life-threatening issues first. Give clear, step-by-step commands.
 
-        Be calm and definitive. Do not use hesitant language like "I think you should..." instead, use "You must..." or "The priority is to..."
+        Be calm and definitive.
 
         When in doubt, advise on general principles and the urgency of seeking help.
 
-        Keep responses concise and to the point.
+        Keep responses concise and to the point, max of 5 sentences.
 
     """
     question = prompt + "\nUser message: " + question
@@ -94,6 +103,7 @@ def listen(port, channel_index=0):
             process.terminate()
 
 def main():
+    # Should move this to a settings file that is loaded  in
     ai_model = "llama3.2"
     channel_index = 2
     port = "/dev/ttyUSB0"
