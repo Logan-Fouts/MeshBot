@@ -7,7 +7,7 @@ import time
 def respond(response, port, channel_index=0, chunk_size=200):
     print(f"Responding with message: {response}")
 
-    disclaimer = "\n\n## Disclaimer\n*Please exercise extreme caution when utilizing this device, as it is not perfect and relies on a limited offline communication system - think twice before relying solely on this last-ditch option, and always prioritize other means of safety.*"
+    disclaimer = "\n\nDisclaimer\nPlease exercise extreme caution when utilizing this device, as it is not perfect and relies on a limited offline communication system - think twice before relying solely on this last-ditch option, and always prioritize other means of safety."
     response += disclaimer
     if len(response) <= chunk_size:
         result = subprocess.run(["meshtastic", "--port", port, "--ch-index", str(channel_index), "--sendtext", response], 
@@ -104,7 +104,7 @@ def listen(port, channel_index=0):
 
 def main():
     # Should move this to a settings file that is loaded  in
-    ai_model = "llama3.2"
+    ai_model = "phi3:mini"
     channel_index = 2
     port = "/dev/ttyUSB0"
     listen(port, channel_index)
