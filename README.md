@@ -1,6 +1,6 @@
 # MeshBot
 
-An off-the-grid AI chat bot for Meshtastic, made for when you’re truly out of range.
+This is a super simple off-the-grid AI chat bot for Meshtastic, made for when you’re truly out of range.
 
 ## What is this?
 
