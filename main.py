@@ -40,7 +40,7 @@ def prompt_ai(question, ai_model="llama3.2"):
 
         You cannot contact any emergency services.
 
-        Prioritize life-threatening issues first. Give clear, step-by-step commands.
+        Give clear, step-by-step commands.
 
         Be calm and definitive.
 

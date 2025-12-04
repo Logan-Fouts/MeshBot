@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# Meshtastic AI Bot Script
 # Listens for messages and responds using AI
 
-# Configuration
+# Config
 AI_MODEL="llama3.2"
 CHANNEL_INDEX=2
 MAC_ADDRESS="10:51:DB:51:03:E1"
@@ -16,7 +15,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Function to send message via Meshtastic
+# Send message via Meshtastic
 send_message() {
     local response="$1"
     echo -e "${BLUE}📤 Sending response...${NC}"
@@ -28,7 +27,6 @@ send_message() {
     fi
 }
 
-# Function to get AI response
 get_ai_response() {
     local question="$1"
     local prompt="You are a survival bot working in a mesh offgrid network to provide potentially life saving information to people. Answer the following question in under 220 characters.: $question"
@@ -44,13 +42,11 @@ get_ai_response() {
             \"stream\": false
         }")
     
-    # Check if curl was successful
     if [ $? -ne 0 ]; then
         echo -e "${RED}❌ Error connecting to Ollama${NC}"
         return 1
     fi
     
-    # Extract response using different methods
     local ai_response=""
     
     # Try to extract response field
@@ -92,13 +88,12 @@ listen_for_messages() {
         # Listen for messages and filter for text content
         meshtastic --ble "$MAC_ADDRESS" --ch-index "$CHANNEL_INDEX" --listen 2>&1 | \
         while IFS= read -r line; do
-            # Check if line contains a text message
             if echo "$line" | grep -q -E "text.:|payload.:"; then
                 message_count=$((message_count + 1))
                 echo -e "\n${GREEN}=== Message #$message_count ===${NC}"
                 echo -e "Raw: $line"
                 
-                # Extract the actual message text
+                # Extract message text
                 local message_text=""
                 if echo "$line" | grep -q "text.:"; then
                     message_text=$(echo "$line" | grep -o "text.: '[^']*'" | sed "s/text.: '//;s/'//")
@@ -109,13 +104,11 @@ listen_for_messages() {
                 if [ -n "$message_text" ]; then
                     echo -e "${BLUE}💬 Received: $message_text${NC}"
                     
-                    # Get AI response
                     ai_response=$(get_ai_response "$message_text")
                     
                     if [ $? -eq 0 ] && [ -n "$ai_response" ]; then
                         echo -e "${YELLOW}🤖 AI Response: $ai_response${NC}"
                         
-                        # Send response
                         send_message "$ai_response"
                     else
                         echo -e "${RED}❌ Could not get AI response${NC}"
