@@ -31,6 +31,15 @@ Important limitation:
 3. The model produces a short answer under strict offline and safety constraints.
 4. MeshBot chunks the response and sends it back over Meshtastic.
 
+## Deployment and power strategy
+
+In most deployments, run AI compute at a location in the area that has reliable outlet power whenever possible, then use remote Meshtastic-only relay nodes to hop messages across the network.
+
+- Powered AI site examples: ranger station, visitor center, maintenance yard, or other staffed facility with stable power.
+- Remote relay role: field nodes run Meshtastic firmware only and forward traffic to and from the powered AI gateway.
+- Outdoor solar relay option: Heltec Solar Kit for Dev Board waterproof enclosure for outdoor Meshtastic/MeshCore deployments: https://heltec.org/project/solar-kit-for-dev-board-waterproof-enclosure-for-outdoor-meshtastic-meshcore/
+- Remote AI fallback for no-grid cases: deploy the AI compute at a sky-visible site using a portable power station such as Jackery Explorer 300 v2: https://www.jackery.com/products/jackery-explorer-300-v2-portable-power-station
+
 ## Product readiness improvements already made
 
 - External configuration via JSON instead of hard-coded serial port and model values.

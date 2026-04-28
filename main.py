@@ -182,7 +182,7 @@ def extract_message(line: str) -> Optional[str]:
     prefix = prefix.strip().lower()
     value = value.strip()
 
-    if prefix == "payload" and value.startswith(("b'", 'b\"')):
+    if prefix == "payload" and value.startswith(("b'", 'b\"', "z\\")):
         # Ignore byte payloads that are not plain text chat messages.
         return None
 
@@ -231,18 +231,21 @@ def listen(settings: Settings) -> None:
 
         try:
             assert process.stdout is not None
+            current_channel_index: Optional[int] = None
             for raw_line in process.stdout:
+
                 message = extract_message(raw_line)
                 if message is None:
                     continue
 
                 if should_ignore_message(message):
                     logging.info("Ignored command or empty message: %s", message)
+                    current_channel_index = None
                     continue
 
                 logging.info("Received message: %s", message)
                 process.terminate()
-                process.wait(timeout=5)
+                process.wait(timeout=1)
 
                 response = prompt_ai(message, settings)
                 if response and response.strip().upper() != "NO_RESPONSE":

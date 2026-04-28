@@ -44,6 +44,17 @@ Recommended package:
 - Support agreement with update cadence and replacement process
 - Pilot success metrics and post-pilot review template
 
+## Recommended topology for parks
+
+Default deployment model:
+- Place AI compute at a local site with reliable outlet power whenever possible.
+- Use additional remote nodes running Meshtastic firmware only to relay traffic across trails and terrain.
+- Keep the AI service centralized and keep remote nodes low-power and simple.
+
+Hardware patterns:
+- Solar remote relay nodes: Heltec Solar Kit for Dev Board waterproof enclosure for outdoor Meshtastic/MeshCore deployments: https://heltec.org/project/solar-kit-for-dev-board-waterproof-enclosure-for-outdoor-meshtastic-meshcore/
+- No-grid remote AI fallback: where no powered facility exists, deploy AI compute at a sky-visible location using a portable power station such as Jackery Explorer 300 v2: https://www.jackery.com/products/jackery-explorer-300-v2-portable-power-station
+
 ## What agencies care about in procurement
 
 - Reliability in harsh field conditions
