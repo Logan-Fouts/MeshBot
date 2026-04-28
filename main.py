@@ -152,6 +152,15 @@ def prompt_ai(question: str, settings: Settings) -> Optional[str]:
             timeout=settings.request_timeout_seconds,
         )
         response.raise_for_status()
+    except requests.HTTPError as error:
+        error_body = ""
+        if error.response is not None:
+            error_body = error.response.text.strip()
+        if error_body:
+            logging.error("AI request failed: %s | body: %s", error, error_body)
+        else:
+            logging.error("AI request failed: %s", error)
+        return None
     except requests.RequestException as error:
         logging.error("AI request failed: %s", error)
         return None
@@ -169,14 +178,31 @@ def extract_message(line: str) -> Optional[str]:
     if not re.match(r"^(payload:|text:)", stripped_line, re.IGNORECASE):
         return None
 
-    return stripped_line.split(":", 1)[1].strip()
+    prefix, value = stripped_line.split(":", 1)
+    prefix = prefix.strip().lower()
+    value = value.strip()
+
+    if prefix == "payload" and value.startswith(("b'", 'b\"')):
+        # Ignore byte payloads that are not plain text chat messages.
+        return None
+
+    return value
 
 
 def should_ignore_message(message: str) -> bool:
-    if not message:
+    cleaned_message = message.strip().strip("\"'")
+
+    if not cleaned_message:
         return True
 
-    if message.startswith(("/", "\\")):
+    if cleaned_message.startswith(("/", "\\")):
+        return True
+
+    # Ignore escaped byte-like payloads and other non-printable message bodies.
+    if re.search(r"\\x[0-9a-fA-F]{2}", cleaned_message):
+        return True
+
+    if not cleaned_message.isprintable():
         return True
 
     return False
@@ -219,8 +245,10 @@ def listen(settings: Settings) -> None:
                 process.wait(timeout=5)
 
                 response = prompt_ai(message, settings)
-                if response:
+                if response and response.strip().upper() != "NO_RESPONSE":
                     respond(response, settings)
+                elif response:
+                    logging.info("Model chose not to respond to this message")
                 break
             else:
                 logging.warning("Meshtastic listener exited without data")
